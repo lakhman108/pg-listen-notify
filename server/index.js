@@ -8,8 +8,11 @@ const config = {
   database: 'notify_demo',
 };
 
-const RECONNECT_DELAY_MS = 3000;
+const BASE_DELAY_MS = 1000;
+const MAX_DELAY_MS = 30000;
+const BACKOFF_FACTOR = 2;
 
+let currentDelay = BASE_DELAY_MS;
 let client = null;
 let reconnecting = false;
 
@@ -22,11 +25,14 @@ function scheduleReconnect() {
     client.end().catch(() => {}); // ignore errors closing a dead connection
   }
 
-  console.log(`Reconnecting in ${RECONNECT_DELAY_MS / 1000}s...`);
+  console.log(`Reconnecting in ${currentDelay / 1000}s...`);
   setTimeout(() => {
     reconnecting = false;
     startListener();
-  }, RECONNECT_DELAY_MS);
+  }, currentDelay);
+
+  // grow delay for the *next* failure, capped at MAX_DELAY_MS
+  currentDelay = Math.min(currentDelay * BACKOFF_FACTOR, MAX_DELAY_MS);
 }
 
 function startListener() {
@@ -36,6 +42,7 @@ function startListener() {
     .then(async () => {
       await client.query('LISTEN item_added');
       console.log('Listening for new items...');
+      currentDelay = BASE_DELAY_MS; // reset backoff on success
     })
     .catch((err) => {
       console.error('Failed to connect:', err.message);
