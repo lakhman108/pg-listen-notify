@@ -339,6 +339,7 @@ A lightweight, session-less DB browser is included so you don't need to install 
 3. Server: `postgres` (pre-filled via `ADMINER_DEFAULT_SERVER`)
 4. Username: `postgres` / Password: `postgres`
 5. Database: `notify_demo`
+6. Host: for that run this  ``docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}'``
 
 > Adminer was chosen over pgAdmin for this project after pgAdmin's session-cookie handling proved unreliable behind proxied dev-container URLs (see [Troubleshooting](#troubleshooting)). Adminer is a single stateless PHP page — no server-side session to break.
 
