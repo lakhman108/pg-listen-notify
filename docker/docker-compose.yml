@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:17.2
+    container_name: pg_notify_demo
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: notify_demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - pg_network
+
+  adminer:
+    image: adminer:latest
+    container_name: pg_notify_adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    networks:
+      - pg_network
+
+volumes:
+  pg_data:
+
+networks:
+  pg_network:
+    driver: bridge
